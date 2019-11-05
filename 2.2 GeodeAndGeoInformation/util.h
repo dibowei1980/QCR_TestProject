@@ -1,6 +1,5 @@
 #pragma once
 
-class Node;
-class ref_ptr<Node>;
-
-ref_ptr<Node> createSceneGraph();
+namespace osg {
+	osg::ref_ptr<osg::Node> createSceneGraph;
+}
