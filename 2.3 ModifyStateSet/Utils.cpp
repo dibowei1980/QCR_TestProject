@@ -99,5 +99,37 @@ osg::ref_ptr<osg::Drawable> createDrawable()
 	//创建纹理坐标数组
 	geom->setTexCoordArray(0, v.get());
 
+	//数据绑定：法线、颜色，绑定方式为：
+	//BIND_OFF不启动用绑定/BIND_OVERALL绑定全部顶点/BIND_PER_PRIMITIVE_SET单个绘图基元绑定/BIND_PER_PRIMITIVE单个独立的绘图基元绑定/BIND_PER_VERTIE单个顶点绑定
+	//采用BIND_PER_PRIMITIVE绑定方式，则OSG采用glBegin()/glEnd()函数进行渲染，因为该绑定方式为每个独立的几何图元设置一种绑定方式
 
+	//创建颜色数组
+	osg::ref_ptr<osg::Vec4Array> vc = new osg::Vec4Array();
+	//添加数据
+	vc->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	vc->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f));
+	vc->push_back(osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f));
+	vc->push_back(osg::Vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	//设置颜色数组
+	geom->setColorArray(vc.get());
+	//设置颜色的绑定方式为单个顶点
+	geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+	//创建法线数组
+	osg::ref_ptr<osg::Vec3Array> nc = new osg::Vec3Array();
+	//添加法线
+	nc->push_back(osg::Vec3(0.0f, -1.0f, 0.0f));
+	//设置法线数组
+	geom->setNormalArray(nc.get());
+	//设置法线的绑定方式
+	geom->setNormalBinding(osg::Geometry::BIND_OVERALL);
+	//添加图元，绘制基元为四边形
+	//数据解析，即指定向量数据和绑定方式后，指定渲染几何体的方式，不同方式渲染出的图形不同，即时效果相同，可能面数或内部机制等也有区别，函数为：
+	//bool addPrimitiveSet(PrimitiveSet *primitiveset)参数说明：osg::PrimitiveSet是无法初始化的虚基类，因此主要调用它的子类指定数据渲染，最常用为osg::DrawArrays
+	//osg::DrawArrays(GLenum mode, GLint first, GLsizei count)参数为指定的绘图基元、绘制几何体的第一个顶点数在指定顶点的位置数、使用的顶点的总数
+	//PrimitiveSet类继承自osg::Object虚基类，但不具备一般一般场景中的特性，PrimitiveSet类主要封装了OpenGL的绘图基元，常见绘图基元如下
+	//POINTS点/LINES线/LINE_STRIP多线段/LINE_LOOP封闭线
+	//TRIANGLES一系列三角形(不共顶点)/TRIANGLE_STRIP一系列三角形(共用后面两个顶点)/TRIANGLE_FAN一系列三角形，顶点顺序与上一条语句绘制的三角形不同
+	//QUADS四边形/QUAD_STRIP一系列四边形/POLYGON多边形
+	geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, 4));
+	return geom;
 }
